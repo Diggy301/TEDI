@@ -1,11 +1,7 @@
-/* encrypt.cpp
- * Performs encryption using AES 128-bit
- * @author Cecelia Wisniewska
- */
 #include <stdio.h>
-#include <unistd.h>			//Used for UART
-#include <fcntl.h>			//Used for UART
-#include <termios.h>		//Used for UART
+#include <unistd.h>			
+#include <fcntl.h>			
+#include <termios.h>		
 #include <string>
 #include <iostream>
 #include <cstring>
@@ -15,25 +11,21 @@
 
 using namespace std;
 
-/* Serves as the initial round during encryption
- * AddRoundKey is simply an XOR of a 128-bit block with the 128-bit key.
- */
+
 void AddRoundKey(unsigned char * state, unsigned char * roundKey) {
 	for (int i = 0; i < 16; i++) {
 		state[i] ^= roundKey[i];
 	}
 }
 
-/* Perform substitution to each of the 16 bytes
- * Uses S-box as lookup table 
- */
+
 void SubBytes(unsigned char * state) {
 	for (int i = 0; i < 16; i++) {
 		state[i] = s[state[i]];
 	}
 }
 
-// Shift left, adds diffusion
+
 void ShiftRows(unsigned char * state) {
 	unsigned char tmp[16];
 
@@ -66,9 +58,7 @@ void ShiftRows(unsigned char * state) {
 	}
 }
 
- /* MixColumns uses mul2, mul3 look-up tables
-  * Source of diffusion
-  */
+
 void MixColumns(unsigned char * state) {
 	unsigned char tmp[16];
 
@@ -97,9 +87,7 @@ void MixColumns(unsigned char * state) {
 	}
 }
 
-/* Each round operates on 128 bits at a time
- * The number of rounds is defined in AESEncrypt()
- */
+
 void Round(unsigned char * state, unsigned char * key) {
 	SubBytes(state);
 	ShiftRows(state);
@@ -107,16 +95,14 @@ void Round(unsigned char * state, unsigned char * key) {
 	AddRoundKey(state, key);
 }
 
- // Same as Round() except it doesn't mix columns
+
 void FinalRound(unsigned char * state, unsigned char * key) {
 	SubBytes(state);
 	ShiftRows(state);
 	AddRoundKey(state, key);
 }
 
-/* The AES encryption function
- * Organizes the confusion and diffusion steps into one function
- */
+
 void AESEncrypt(unsigned char * message, unsigned char * expandedKey, unsigned char * encryptedMessage) {
 	unsigned char state[16]; // Stores the first 16 bytes of original message
 
@@ -140,61 +126,6 @@ void AESEncrypt(unsigned char * message, unsigned char * expandedKey, unsigned c
 	}
 }
 
-/*
-int main() {
-
-	cout << "=============================" << endl;
-	cout << " 128-bit AES Encryption Tool   " << endl;
-	cout << "=============================" << endl;
-
-	unsigned char message[1024] = {0x18, 0x6f, 0xa1, 0xb2, 0x68, 0xb8, 0xef, 0x6c, 0x6b, 0x95, 0x4c, 0xfb, 0x12, 0x29, 0xaa, 0x45};
-
-	int originalLen = strlen((const char *)message);
-	printf("%d", originalLen);
-	unsigned char * encryptedMessage = new unsigned char[originalLen];
-
-	unsigned char key[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
-
-	unsigned char expandedKey[176];
-
-	KeyExpansion(key, expandedKey);
-
-	for (int i = 0; i < originalLen; i += 16) {
-		AESEncrypt(message+i, expandedKey, encryptedMessage+i);
-	}
-	
-	
-	cout << "Plaintext in hex:" << endl;
-	for (int i = 0; i < originalLen; i++) {
-		cout << hex << (int) message[i];
-		cout << " ";
-	}
-	cout << endl;
-	
-	
-	cout << "Ciphertext in hex:" << endl;
-	for (int i = 0; i < originalLen; i++) {
-		cout << hex << (int) encryptedMessage[i];
-		cout << " ";
-	}
-	cout << endl;
-
-	//while(1){
-		
-		
-		// data = readline
-		// command =data[0]
-		// pt = slice_of data
-		// pt = asciiwierdformat(pt)
-		// if command == 'p'
-		//		ct = encrypt(pt)
-		// 		ct = asciinunwierdformat(ct)
-		//		send(ct)
-		//		send(ack)	
-	//}		
-	
-	return 0;
-}*/
 
 int main(){
 	int uart0_filestream = -1;
