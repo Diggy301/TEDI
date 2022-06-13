@@ -36,12 +36,7 @@ while True:
 					rawmsg.extend(['\n'])
 					msg = ''.join(rawmsg)
 					
-					print(msg.encode())
-
-					#ser.flush()
-					
 					a=ser.write(msg.encode())
-					#time.sleep(0.05)
 					a=ser.write(ack) 
 			
 	except OSError:
